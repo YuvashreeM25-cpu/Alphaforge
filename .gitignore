@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.db
+*.joblib
+*.so
+build/
+*.egg-info/
+.env
+.venv/
+venv/
+models/classifier_metrics.json
+bi/output/

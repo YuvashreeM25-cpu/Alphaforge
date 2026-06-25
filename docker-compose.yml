@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: alphaforge
+      POSTGRES_PASSWORD: alphaforge
+      POSTGRES_DB: alphaforge
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alphaforge"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  cache:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  api:
+    build: .
+    depends_on:
+      db: {condition: service_healthy}
+      cache: {condition: service_started}
+    environment:
+      DATABASE_URL: postgresql://alphaforge:alphaforge@db:5432/alphaforge
+      REDIS_URL: redis://cache:6379/0
+      # ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}   # uncomment to enable LLM prose
+    ports: ["8000:8000"]
+
+  scheduler:
+    build: .
+    depends_on:
+      db: {condition: service_healthy}
+    environment:
+      DATABASE_URL: postgresql://alphaforge:alphaforge@db:5432/alphaforge
+      REDIS_URL: redis://cache:6379/0
+      WATCHLIST: "NVDA,AMD,TSM,ASML,MU,INTC"
+    command: ["python", "-m", "scheduler.jobs", "--serve"]
+
+volumes:
+  pgdata:

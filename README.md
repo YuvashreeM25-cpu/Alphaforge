@@ -71,10 +71,6 @@ You'll see the agent's plan stream in step-by-step, then the thesis.
 | Infra | **Docker Compose** (app + Postgres + Redis + scheduler), **GitHub Actions CI**, Render deploy | `Dockerfile`, `docker-compose.yml`, `.github/`, `render.yaml` |
 
 ## The parts a reviewer should look at first
-- **Time-aware train/test split** — `models/train_classifier.py`. On the
-  signal-free synthetic data, train AUC ≈ 0.80 but test AUC ≈ 0.49. That gap is
-  the **anti-leakage harness working**, not a bug. Swap in real data via `--live`
-  to test for actual signal.
 - **C++ vs Python benchmark** — `python -m risk.benchmark`. Shows C++ ≈ 18× a
   naive Python loop and ≈ par with NumPy (which is already vectorized C). The
   honest takeaway: C++ wins when the path logic can't be vectorized.
